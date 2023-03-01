@@ -1,6 +1,7 @@
 package br.com.dio.challenge.domain;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class Dev {
@@ -8,13 +9,29 @@ public class Dev {
     private Set<Content> subscribesContent = new LinkedHashSet<>();
     private Set<Content> concludedContent = new LinkedHashSet<>();
 
+    public Dev(){
+    }
+
     public void subscribeBootcamp(Bootcamp bootcamp){
+        this.subscribesContent.addAll(bootcamp.getContents());
+        bootcamp.getSubscribedDevs().add(this);
     }
 
     public void progress(){
+        Optional<Content> content = this.subscribesContent.stream().findFirst();
+        if(content.isPresent()){
+            this.concludedContent.add(content.get());
+            this.subscribesContent.remove(content.get());
+        } else {
+            System.err.println("You are not subscribed to any content");
+        }
     }
 
-    public void calculateTotalXp() {
+    public double calculateTotalXp() {
+        return this.concludedContent
+        .stream()
+        .mapToDouble(content -> content.calcularXp())
+        .sum();
     }
 
     public String getName() {
@@ -76,6 +93,5 @@ public class Dev {
         } else if (!concludedContent.equals(other.concludedContent))
             return false;
         return true;
-    }
-    
+    }  
 }
